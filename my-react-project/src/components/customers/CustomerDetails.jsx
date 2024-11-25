@@ -1,42 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Button, Container } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 const CustomerDetails = () => {
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const [customer, setCustomer] = useState(null);
+  const { id } = useParams();
+  const [customer, setCustomer] = useState(null);
 
-    useEffect(() => {
-        const fetchCustomer = async () => {
-            const response = await fetch(`/api/customers/${id}`); // Replace with your API
-            const data = await response.json();
-            setCustomer(data);
-        };
-        fetchCustomer();
-    }, [id]);
+  useEffect(() => {
+    fetch(`http://localhost:5000/api/customers/${id}`)
+      .then(response => response.json())
+      .then(data => setCustomer(data))
+      .catch(error => console.error('Error fetching customer details:', error));
+  }, [id]);
 
-    const handleDelete = async () => {
-        await fetch(`/api/customers/${id}`, { method: 'DELETE' }); // Replace with your API
-        navigate('/customers');
-    };
+  if (!customer) {
+    return <p>Loading customer details...</p>;
+  }
 
-    return (
-        <Container>
-            {customer ? (
-                <>
-                    <h2>{customer.name}</h2>
-                    <p>Email: {customer.email}</p>
-                    <p>Phone: {customer.phone}</p>
-                    <Button variant="danger" onClick={handleDelete}>
-                        Delete
-                    </Button>
-                </>
-            ) : (
-                <p>Loading...</p>
-            )}
-        </Container>
-    );
+  return (
+    <div>
+      <h2>Customer Details</h2>
+      <p>Name: {customer.name}</p>
+      <p>Email: {customer.email}</p>
+      <p>Phone: {customer.phone}</p>
+    </div>
+  );
 };
 
 export default CustomerDetails;
